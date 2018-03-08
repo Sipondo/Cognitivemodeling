@@ -31,7 +31,7 @@ with open("token") as file:
 #commands=['start', 'help']
 @bot.message_handler(func=lambda m: True)
 def send_welcome(message):
-    test_sent_features = {word.lower(): (word in word_tokenize(test_sentence.lower())) for word in all_words}
+    test_sent_features = {word.lower(): (word in word_tokenize(message.text.lower())) for word in all_words}
     bot.reply_to(message, u"Sentiment score: " + str(classifier.classify(test_sent_features)))
 
 bot.polling()
