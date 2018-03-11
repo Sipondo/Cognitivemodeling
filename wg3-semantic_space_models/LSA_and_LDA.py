@@ -2,6 +2,8 @@ from sklearn.datasets import fetch_20newsgroups
 from sklearn.decomposition import NMF, LatentDirichletAllocation
 from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 
+BODY_PARTS = ['torso', 'head', 'face', 'nose', 'lips', 'mouth', 'teeth', 'tongue', 'arm', 'biceps', 'elbow', 'forearm', 'hand', 'palm', 'fingers', 'pinky', 'thumb', 'leg', 'thigh', 'knee', 'calf', 'ankle', 'foot']
+
 # fetch data
 dataset = fetch_20newsgroups(shuffle=True, random_state=1,\
  remove=('headers', 'footers', 'quotes'))
@@ -32,22 +34,22 @@ tf_feature_names = tf_vectorizer.get_feature_names()
 
 def show_topics(model, feature_names, no_top_words):
     for topic_idx, topic in enumerate(model.components_):
-        print "Topic %d:" % (topic_idx)
-        print " ".join([feature_names[i]
-                        for i in topic.argsort()[:-no_top_words - 1:-1]])
+        print("Topic %d:" % (topic_idx))
+        #print(" ".join([feature_names[i] for i in topic.argsort()[:-no_top_words - 1:-1]]))
+        print(" ".join([feature_names[i] + ' ' + str(round(topic[i], 2)) for i in topic.argsort() if feature_names[i] in BODY_PARTS]))
 
-no_topics = 20
+no_topics = 6
 
 # Run NMF
 nmf = NMF(n_components=no_topics, random_state=1, alpha=.1,\
  l1_ratio=.5, init='nndsvd').fit(tfidf)
 
-# Run LDA
-lda = LatentDirichletAllocation(n_components=no_topics,\
- max_iter=5, learning_method='online', learning_offset=50.,random_state=0).fit(tf)
+# # Run LDA
+# lda = LatentDirichletAllocation(n_components=no_topics,\
+#  max_iter=5, learning_method='online', learning_offset=50.,random_state=0).fit(tf)
 
 
 num_top_words = 10
 
 show_topics(nmf, tfidf_feature_names, num_top_words)
-show_topics(lda, tf_feature_names, num_top_words)
+# show_topics(lda, tf_feature_names, num_top_words)
