@@ -40,7 +40,7 @@ def create_lsa_lda_similarity():
     # fetch data
     dataset = fetch_20newsgroups(shuffle=True, random_state=1, remove=('headers', 'footers', 'quotes'))
     documents = dataset.data
-    num_features = 2000 # most frequent N words included
+    num_features = 50000 # most frequent N words included
 
     # Headers
     with open('similarities/handmade.csv', 'r') as f:
