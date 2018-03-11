@@ -33,31 +33,31 @@ model['money']
 model.similarity("hot","cold") # .20
 model.similarity("hot","warm") # .14
 
-def receive_word(hint):
+def receive_word(hint): #receive word, also used by send word!
     return_list = []
-    for option in model.most_similar_cosmul(positive=[hint], topn=100):
-        if (not hint.lower() in option[0].lower())\
-         and (not option[0].lower() in hint.lower())\
-         and (not "_" in option[0].lower()):
-            return_list.append(option[0])
+    for (option, odds) in model.most_similar_cosmul(positive=[hint], topn=100): #check 100 words
+        if (not hint.lower() in option.lower())\
+         and (not option.lower() in hint.lower())\
+         and (not "_" in option.lower()): #these filter some words that found unsatisfactory
+            return_list.append(option)
     if(len(return_list)>0):
-        return_list.sort(key = lambda x:len(x))
+        return_list.sort(key = lambda x:len(x)) #this returns the shortest word i/o first hit
         return return_list[0]
     return "NaN"
     #return model.most_similar(positive=[hint],negative=["object"])[0]
 
-def send_word(secret):
-    for option in model.most_similar_cosmul(positive=[secret], topn=100):
-        if (not option.lower() in secret.lower():
-            if (not "_" in option[0]):
-                if (receive_word(option[0]) == secret):# and not (secret in option[0]):
-                    return option[0]
+def send_word(secret): #receive word, also used by send word!
+    for (option, odds) in model.most_similar_cosmul(positive=[secret], topn=100): #check 100 words
+        if (not option.lower() in secret.lower()): #these filter some words that found unsatisfactory
+            if (not "_" in option):
+                if (receive_word(option) == secret):# and not (secret in option[0]):
+                    return option
     return_list = []
-    for option in model.most_similar_cosmul(positive=[secret], topn=50):
-        if (not secret in option[0]) and (not option[0] in secret):
-            return_list.append(option[0])
+    for (option, odds)in model.most_similar_cosmul(positive=[secret], topn=50):
+        if (not secret in option) and (not option in secret):
+            return_list.append(option)
     if(len(return_list)>0):
-        return_list.sort(key = lambda x:len(x))
+        return_list.sort(key = lambda x:len(x)) #this returns the shortest word i/o first hit
         return return_list[0]
     return "NaN"
 
