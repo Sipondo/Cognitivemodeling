@@ -1,4 +1,4 @@
 .vscode
 token
-pol_accounts.csv
-pol_tweets.csv
+classifier/pol_accounts.csv
+classifier/pol_tweets.csv
