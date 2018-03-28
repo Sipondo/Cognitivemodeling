@@ -22,8 +22,6 @@ t = [({word: (word in word_tokenize(x[0])) for word in all_words}, x[1]) for x i
 classifier = NaiveBayesClassifier.train(t)
 
 
-
-
 with open("token") as file:
     bot = telebot.TeleBot(file.readline()[:-1])
 
