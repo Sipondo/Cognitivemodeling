@@ -1,6 +1,6 @@
 import os
-import telebot
 
+import telebot
 from nltk.classify import NaiveBayesClassifier
 from nltk.corpus import subjectivity
 from nltk.sentiment import SentimentAnalyzer
@@ -20,9 +20,10 @@ def respond(message: str):
 #commands=['start', 'help']
 @bot.message_handler(func=lambda m: True)
 def send_welcome(message):
+    print('>' + message.text)
     response = respond(message)
+    print(response)
     bot.reply_to(message, response)
-    print(message.text)
 
 print('Running!')
 bot.polling()
