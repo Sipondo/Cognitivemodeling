@@ -13,9 +13,14 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
 from nltk.corpus import stopwords
 import re
+from gensim.models import Word2Vec
+from gensim.models.keyedvectors import KeyedVectors
+
+pret = "./classifier"
+model = KeyedVectors.load_word2vec_format(pret+'/GoogleNews-vectors-negative300.bin', binary=True)
 
 binding_list = {}
-with open("pol_bindings.csv") as file:
+with open(pret+"/pol_bindings.csv") as file:
     reader = csv.DictReader(file)
     for row in reader:
         democrat = int(row["democrat"])
@@ -27,7 +32,7 @@ with open("pol_bindings.csv") as file:
 class_list = {key: binding_list[key] for key in binding_list if binding_list[key] > 0}
 
 tweets = []
-with open("pol_tweets.csv", encoding="utf-8") as file:
+with open(pret+"/pol_tweets.csv", encoding="utf-8") as file:
     reader = csv.DictReader(file, delimiter=";")
     for row in tqdm(reader):
         tweets.append([row["user_id"], row["tweet_text"]])
@@ -46,21 +51,30 @@ def return_tweet_text(tweet):
 def process_tweet_text(tweet_text):
     return re.sub(r'[^\w]', ' ', tweet_text).lower()
 
-stopw = stopwords.words('english')
-def build_vocab(tweet_text, all_words, stopw):
-    for word in word_tokenize(process_tweet_text(tweet_text)):
-        if not word in all_words:
+import numpy as np
+def average_vector(tweet_text):
+    vectorlist = [[0 for i in range(300)]]
+    for word in process_tweet_text(tweet_text).split():
+        if word in model:
             if not word in stopw:
-                all_words.append(word)
-    return all_words
+                vectorlist.append(model.get_vector(word))
+    return np.mean(np.asarray(vectorlist),axis=0)
 
-all_words = []
-for i in tqdm(range(len(tweets)-1,-1,-1)):
-    all_words = build_vocab(tweets[i][1],all_words,stopw)
+stopw = stopwords.words('english')
+# def build_vocab(tweet_text, all_words, stopw):
+#     for word in word_tokenize(process_tweet_text(tweet_text)):
+#         if not word in all_words:
+#             if not word in stopw:
+#                 all_words.append(word)
+#     return all_words
+#
+# all_words = []
+# for i in tqdm(range(len(tweets)-1,-1,-1)):
+#     all_words = build_vocab(tweets[i][1],all_words,stopw)
 
 def return_features(tweet_text):
-    tweet_text = word_tokenize(process_tweet_text(tweet_text))
-    return {word: (word in tweet_text) for word in all_words}
+    vector = average_vector(tweet_text)
+    return {i: vector[i] for i in range(len(vector))}
 
 labelled_tweets = []
 for i in tqdm(range(len(tweets)-1,-1,-1)):
@@ -84,9 +98,11 @@ classifier = NaiveBayesClassifier.train(labelled_tweets[:120000])
 #    return [{"text:": tweet[0]}]
 
 #labelled_tweets[500]
+# print(accuracy(classifier,labelled_tweets[120000:140000]))
 
-print(accuracy(classifier,labelled_tweets[120000:140000]))
-
+def classify(text):
+    vector = return_features(text)
+    return classifier.classify(text)
 
 
 #classifier.classify(labelled_tweets[500][0])

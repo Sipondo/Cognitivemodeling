@@ -6,6 +6,7 @@ import markovify
 from textblob import TextBlob
 
 import generator.markov_model as markov_model
+#from classifier.classifier import classifier
 
 MARKOV_SIZE = 2
 
@@ -26,7 +27,7 @@ TwoXChromosomes_model = markov_model.load('TwoXChromosomes')
 hardcoded_responses = {
     'Hi': 'Hi there!\nHow do you feel about what Trump said yesterday?',
     'Hello': 'Hello to you too. How do you feel about what Trump said yesterday?',
-    'Goodbye': 'See you again soon!' 
+    'Goodbye': 'See you again soon!'
 }
 
 keyword_responses = [
@@ -47,6 +48,8 @@ def extract_keywords(message: str) -> list:
 
 def respond(message: str) -> str:
     # Generate merged model based on current evaluation. Might be too slow for every sentence.
+    weight_republican = 0.5
+    weight_democrat = 0.5
     merged_model = markovify.combine([The_Donald_model, TwoXChromosomes_model], [weight_republican, weight_democrat])
     keywords = extract_keywords(message)
 
@@ -55,7 +58,7 @@ def respond(message: str) -> str:
         # Respond to keyword
         # Randomly select response formula
         formula = keyword_responses[0]
-        
+
         # Add keywords
         formula += keywords[0]
 
